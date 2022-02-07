@@ -1,8 +1,10 @@
 #include "include/process.h"
 #include "include/str.h"
+#include "include/time.h"
+
 Proc_T* proc_init_stk(size_t uid,size_t pid,size_t ppid,char *cmd,int nice)
 {
-    time_t time;
+    time_t time = time_cur();
     Proc_T* proc = malloc(sizeof(Proc_T));
     proc->uid = uid;
     proc->pid = pid;
