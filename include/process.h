@@ -43,9 +43,11 @@ Proc_T* proc_init_stk(size_t uid,size_t pid,size_t ppid,char *cmd,int nice);
  * @param time time of start proccess
  * @param cmd command runer tihs proccess proc
  * @param nice nice ness peoccess 
- * @param state type of state proccess 
+ * @param opfs list of file opened with current proccess 
+ * @param opdev list of devices opened with current proccess
  * @return * Proc_T* 
  */
-Proc_T* proc_init_dyn(size_t uid,size_t pid,size_t ppid,time_t time,char *cmd,int nice,int state);
+Proc_T* proc_init_dyn(size_t uid,size_t pid,size_t ppid,time_t time,char *cmd,
+                int nice,int state,list_T *opfs,list_T *opdev);
 
 #endif
