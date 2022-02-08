@@ -1,55 +1,53 @@
-#include "include/conv.h"
-#include <math.h>
+#include "include/macros.h"
+#include "include/tpye_t.h"
 #include <stdlib.h>
 #include <string.h>
-#define LEN(a) (sizeof(a) / sizeof(a[0]))
+#include <math.h>
 
-short *charstobin(char *str,int base)
+int charstobin(bit_t *bins,char *str,int offset,int limit)
 {
+    int bcp = offset;
     int slen = strlen(str);
-    short *bins = malloc(slen * base * sizeof(int));
-    int bcp = 0;
-    
     for (size_t i = 0; i < slen; i++)
     {
-        dtob(bins,(int)str[i],bcp,base);
-        bcp += base;
+        dtob(bins,(int)str[i],bcp,limit);
+        bcp += limit;
     }
+    return offset + limit;
 }
 
-char *bintochars(short *bins,int base)
+int bintochars(char *buf,int buf_sz,bit_t *bins,int offset,int limit)
 {
-    int size = ceil((float)LEN(bins) / (float)base) ;
-    char *str = malloc(size * sizeof(char));
-
     int bcp = 0;
+    buf = malloc(buf_sz * sizeof(char));
 
-    for (int i = 0; i < size; i++)
+    for (int i = 0; i < buf_sz; i++)
     {
-        str[i] = btod(bins,bcp,base); 
-        bcp += base;
+        btod(&buf[i],bins,bcp,limit); 
+        bcp += limit;
     }
 
-    return str;
+    return offset + bcp;
 }
 
-void dtob(short *bins,int digit,int offset,int limit)
+int dtob(bit_t *bins,long digit,int offset,int limit)
 {
-    int next = digit;
     int size = offset + limit;
     int i = offset;
+    long next = digit;
 
     for(; i < size ;i++)
     {
-        if(next < 2)
+        if(next == 0)
         {
-            bins[size - i - 1] = next;
+            bins[size - i - 1] = (bit_t)next;
             break;
         }
-        
-        bins[size - i - 1] = 0;
-
-        next = ( next % 2 ) / 2;
+        else
+        {
+            bins[size - i - 1] = 0;
+            next = ( next % 2 ) / 2;
+        }
     }
 
     int shift_c = size - i;
@@ -67,25 +65,49 @@ void dtob(short *bins,int digit,int offset,int limit)
             bins[size - i - 1] = 0;
         }
     }
-    
+    return size;   
 }
 
-long btod(short *bins,int offset,int limit)
-{
-    long data = 0;
-    int len = LEN(bins);
-    if(offset + limit > len) 
-    {
-        printf("out of bounds...\n");
-        return NULL;
-    }
 
+int btod(long *data,bit_t *bins,int offset,int limit)
+{
+    *data=0;
     for (int i = 0; i < limit; i++)
     {
-        if(bins[offset + i] == 1)
-            data += (int)pow(2,i);
+        if(bins[offset + i] == 1){
+            *data += (long)pow(2,i);
+        }
     }
     
-    return data;
+    return offset + limit;
 }
 
+bit_t *bchtob(char *str,int sz)
+{
+    bit_t *bins = malloc(sz * sizeof(bit_t));
+    
+    for (int i = 0; i < sz; i++)
+    {
+        bins[sz - i - 1] = atoi((char[]){str[i]});
+    }
+
+    return bins;
+}
+
+int btob(bit_t *b1,bit_t *b2,int offset,int limit)
+{
+    for (int i = offset; i < limit; i++)
+    {
+        b1[i] = b2[i];
+    }
+
+    return offset + limit;
+}
+
+void print_bins(bit_t *bins,int offset,int limit)
+{
+    for (int i = limit-1 ; i >= offset; i--)
+    {
+        printf("%d",bins[i]);
+    }
+}

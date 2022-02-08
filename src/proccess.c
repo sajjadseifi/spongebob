@@ -1,6 +1,6 @@
 #include "include/process.h"
 #include "include/str.h"
-#include "include/time.h"
+#include "include/bob-time.h"
 
 Proc_T* proc_init_stk(size_t uid,size_t pid,size_t ppid,char *cmd,int nice)
 {
