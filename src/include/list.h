@@ -13,4 +13,7 @@ list_T* init_list(size_t item_size);
 
 void list_push(list_T* list, void* item);
 
+int list_index(list_T* list, void* item);
+
+int list_pop(list_T* list, void* item);
 #endif
