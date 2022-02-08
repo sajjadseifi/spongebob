@@ -3,6 +3,21 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "tpye_t.h"
+
+bit_t ctob(char c);
+
+void flushb(bit_t *bins,int offset,int limit,bit_t entry);
+
+void flush(bit_t *bins,int offset,int limit);
+
+void shift_to_lsb(bit_t *bins,int offset,int limit,int shiftc,bit_t entry);
+
+void shift_circular(bit_t *bins,int offset,int limit,int rtl);
+
+void swap(int *a,int *b);
+
+void reverse(bit_t *bins,int offset,int limit);
+
 /**
  * @brief 
  * convert chars string to binary array of bit 
