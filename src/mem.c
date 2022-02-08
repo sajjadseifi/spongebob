@@ -1,33 +1,44 @@
 #include <stdbool.h>
-#include "include/mem.h"
 #include <stdlib.h>
+#include "include/mem.h"
+#include "include/macros.h"
 
-int *read_range(MEM *mem,long start,long end)
+bit_t *read_range(MEM *mem,long offset,long limit)
 {
-    int size = end - start + 1;
-    int *d = malloc((size) * sizeof(int));
-    
+    bit_t *d = malloc((limit) * sizeof(bit_t));    
     //new open file
-    fseek(mem,start,SEEK_SET);
+    fseek(mem,offset,SEEK_SET);
 
-    for(long i=0;!feof(mem) && i < size;i++)
+    for(long i=0;!feof(mem) && i < limit;i++)
     {
-        d[i] = fgetc(mem);
+        d[i] = atoi(fgetc(mem));
     }
 
     return d;
 }
 
-bool write_range(MEM *mem,int *d,long start,long end)
+bool write_range(MEM *mem,bit_t *d,long off_b,long lim_b,long off_m,long lim_m)
 {
-    int size = end - start + 1;
     //new open file
-    fseek(mem,start,SEEK_SET);
+    fseek(mem,off_m,SEEK_SET);
 
-    for(long i = 0;!feof(mem) && i < size;i++)
+    int sz = MIN(lim_b - off_b, lim_m);
+
+    for(long i = off_b;i < sz;i++)
     {
-        fputc(d[i],mem);
+        printf("%d",d[i]);
+        fputc(d[i]+'0',mem);
     }
 
     return true;
+}
+
+void flush_range(MEM *mem,long offset,long limit)
+{
+    //new open file
+    fseek(mem,offset,SEEK_SET);
+    for (size_t i = 0; i < limit; i++)
+    {
+        fputc(NOTC,mem);
+    }
 }
