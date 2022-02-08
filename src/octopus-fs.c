@@ -3,12 +3,14 @@
 #include "include/bob-time.h"
 #include "include/conv.h"
 
-oct_FS* octfs_init(size_t block_pos,int uid,int gid,int oid,
-                     size_t poid,char *name,bit_t status[10])
+oct_FS* octfs_init(long block,long offset,int uid,int gid,long oid,
+                     long poid,char *name,bit_t status[STATUS_SIZE])
 {
     time_t cur =  time_cur();
     oct_FS *ofs = malloc(sizeof(oct_FS));
-    ofs->node_block_pos = block_pos;
+    btob(ofs->status,status,0,10);
+    ofs->block = block;
+    ofs->offset = offset;
     ofs->oid = oid;
     ofs->poid = poid;
     ofs->uid = uid;
@@ -24,7 +26,7 @@ oct_FS* octfs_init_str(char *data)
     int end = 0;
     bit_t *bins = bchtob(data,BLOCK_INODE_SIZE);
     oct_FS *ofs = malloc(sizeof(oct_FS));
-    end = btob(ofs->status,bins,end,10);
+    end = btob(ofs->status,bins,end,STATUS_SIZE);
     end = btod(&ofs->oid,bins,end,BYTE8);
     end = btod(&ofs->poid,bins,end,BYTE8);
     end = btod(&ofs->uid,bins,end,BYTE4);
@@ -42,16 +44,21 @@ size_t octfs_update(oct_FS* ofs,MEM *mem)
 {
     int end = 0;
     bit_t *bins = malloc(BLOCK_INODE_SIZE * sizeof(bit_t));
-    end = btob(bins,ofs->status,end,10);
+    end = btob(bins,ofs->status,end,STATUS_SIZE);
     end = dtob(bins,ofs->oid,end,BYTE8);
+    
     end = dtob(bins,ofs->poid,end,BYTE8);
     end = dtob(bins,ofs->uid,end,BYTE4);
     end = dtob(bins,ofs->gid,end,BYTE4);
     end = dtob(bins,ofs->create_at,end,BYTE8);
     end = dtob(bins,ofs->modified_at,end,BYTE8);
-    end = charstobin(bins,ofs->name,end,BYTE4 * 20);
+    end = charstobin(bins,ofs->name,end,BYTE4 * NAME_COUNT);
     end = dtob(bins,ofs->block_inode_address,end,BYTE8);
+    long phy_addr = (ofs->block * BLOCK_SIZE) + ofs->offset;
 
+    write_range(mem,bins,0,BLOCK_INODE_SIZE,
+                  phy_addr,BLOCK_INODE_SIZE);
+    
     return end;
 }
 
